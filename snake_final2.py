@@ -1,15 +1,11 @@
+#!/usr/bin/env python
+
 import curses
 import time
 import random
 
 def amIDeadYet(snakeX,snakeY,maxCols,maxRows):
     """ Checks if the death conditions are true """
-    # if snakeX[0] >= maxCols-1 or snakeX[0] <= 0:
-    #     return True
-    #
-    # elif snakeY[0] >= maxRows-1 or snakeY[0] <=0:
-    #     return True
-
     for i in range(len(snakeX)-1):
         if snakeX[0] == snakeX[i+1] and snakeY[0] == snakeY[i+1]:
             return True
@@ -67,7 +63,6 @@ def moveTheSnake(snakeX,snakeY,direction):
 
 def drawGameField():
     """ Draws the static parts of the game field and the scoreboard"""
-
     #"LEVELS"
     if (len(snakeX)-4) // 6 == 0:
         gameSpeed = 200
@@ -90,7 +85,6 @@ def drawGameField():
 
 def drawSnake(snakeY,snakeX):
     """ Draws all segments of the snake at given coordinates and in color"""
-
     for i in range(len(snakeX)):
         if i == 0:
             screen.addstr(snakeY[i], snakeX[i],"█",curses.color_pair(1))
@@ -113,14 +107,15 @@ def death():
     exit()
 
 def gameOver():
-   counter=1
-   with open('gameOver.txt') as f:
-       for line in f:
-           screen.addstr(counter, 17,line)
-           counter += 1
+    """ Game over text at the end """
+    counter=1
+    with open('gameOver.txt') as f:
+        for line in f:
+            screen.addstr(counter, 17,line)
+            counter += 1
 
-   screen.addstr(15,28, "Do you want to try again?")
-   screen.addstr(17,38, "Y / N")
+    screen.addstr(15,28, "Do you want to try again?")
+    screen.addstr(17,38, "Y / N")
 
 #-------------------Initialisation starts--------------------
 
@@ -176,5 +171,4 @@ while True:
         direction = "right"
 
 curses.endwin()
-
 #---------------------Main loop ends-------------------------
