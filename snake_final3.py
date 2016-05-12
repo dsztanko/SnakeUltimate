@@ -2,7 +2,7 @@ import curses
 import time
 import random
 
-d,íscjhfkscjhfcuksdcfk sdfkvf hsvk fhc
+#dgaewraerhaerhtrhrthrtj
 
 
 def amIDeadYet(snakeX,snakeY,maxCols,maxRows):
