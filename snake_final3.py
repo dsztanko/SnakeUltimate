@@ -2,9 +2,6 @@ import curses
 import time
 import random
 
-#dgaewraerhaerhtrhrthrtj
-
-
 def amIDeadYet(snakeX,snakeY,maxCols,maxRows):
     """ Checks if the death conditions are true """
     # if snakeX[0] >= maxCols-1 or snakeX[0] <= 0:
@@ -123,7 +120,12 @@ def drawStartingScreen():
     pressSpace = "Press 'Space' to continue..."
     screen.addstr(17,int((maxCols - len(pressSpace)) / 2), pressSpace)
 
-
+def drawMainMenu():
+        counter=1
+        with open('mainmenu.txt') as f:
+            for line in f:
+                screen.addstr(counter,int((maxCols - len(line)) / 2),line)
+                counter += 1
 
 #-------------------Initialisation starts--------------------
 
@@ -136,7 +138,7 @@ screen.keypad(1)
 screen.nodelay(1)
 curses.start_color()
 
-stage = "StartingScreen"
+stage = "MainMenu"
 
 
 
@@ -168,7 +170,10 @@ while True:
     # drawFood(foodY,foodX)
     # (snakeX, snakeY, direction) = moveTheSnake(snakeX,snakeY,direction)
     # drawSnake(snakeY,snakeX)
-    drawStartingScreen()
+    if stage == "StartingScreen":
+        drawStartingScreen()
+    elif stage == "MainMenu":
+        drawMainMenu()
 
 
     if amIDeadYet(snakeX,snakeY,maxCols,maxRows): death()
