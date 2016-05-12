@@ -2,9 +2,6 @@ import curses
 import time
 import random
 
-#dgaewraerhaerhtrhrthrtj
-
-
 def amIDeadYet(snakeX,snakeY,maxCols,maxRows):
     """ Checks if the death conditions are true """
     # if snakeX[0] >= maxCols-1 or snakeX[0] <= 0:
