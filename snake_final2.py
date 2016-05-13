@@ -4,6 +4,14 @@ import curses
 import time
 import random
 
+def zeroStage(snakeX = [], snakeY = [], direction = ""):
+    """ Starting stage of the snake """
+    snakeX = [20,19,18,17]
+    snakeY = [20,20,20,20]
+    direction = "right"
+    return (snakeX, snakeY, direction)
+
+
 def amIDeadYet(snakeX,snakeY,maxCols,maxRows):
     """ Checks if the death conditions are true """
     for i in range(len(snakeX)-1):
@@ -99,13 +107,6 @@ def shiftRight(l):
     """ Takes a list as an input and shifts every element to the right"""
     return l[-1:] + l[:-1]
 
-def death():
-    """ Handles events if the game is over """
-    screen.erase()
-    #screen.addstr("GAME OVER")
-    curses.endwin()
-    exit()
-
 def gameOver():
     """ Game over text at the end """
     counter=1
@@ -121,12 +122,12 @@ def gameOver():
 # Curses module initialisation
 screen = curses.initscr()
 maxRows, maxCols = screen.getmaxyx()
-stage = "Game"
 curses.noecho()
 curses.curs_set(0)
 screen.keypad(1)
 screen.nodelay(1)
 curses.start_color()
+stage = "Game"
 
 # Used color pairs initialisation
 curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
@@ -136,12 +137,8 @@ curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
 foodY = random.randint(2,maxRows-2)
 foodX = random.randint(2,maxCols-2)
 
-# X and Y coordinates of the starting position of the snake
-snakeX = [20,19,18,17]
-snakeY = [20,20,20,20]
-
-# Starting direction of the snake
-direction = "right"
+# X and Y coordinates of the starting position and direction of the snake
+snakeX, snakeY, direction = zeroStage()
 
 # Speed of the game
 gameSpeed = 0.1 # it must be greater than 0, the lower the value, the faster the game
@@ -165,9 +162,7 @@ while True:
         gameOver()
         if event == ord(" "):
             stage = "Game"
-            snakeX = [20,19,18,17]
-            snakeY = [20,20,20,20]
-            direction = "right"
+            snakeX, snakeY, direction = zeroStage(snakeX, snakeY, direction)
             screen.timeout(1)
 
     event = screen.getch()
