@@ -114,14 +114,14 @@ def gameOver():
             screen.addstr(counter, 17,line)
             counter += 1
 
-    screen.addstr(15,28, "Do you want to try again?")
-    screen.addstr(17,38, "Y / N")
+    screen.addstr(15,28, "Press 'SPACE' to try again.")
 
 #-------------------Initialisation starts--------------------
 
 # Curses module initialisation
 screen = curses.initscr()
 maxRows, maxCols = screen.getmaxyx()
+stage = "Game"
 curses.noecho()
 curses.curs_set(0)
 screen.keypad(1)
@@ -151,15 +151,27 @@ gameSpeed = 0.1 # it must be greater than 0, the lower the value, the faster the
 #---------------------Main loop starts-----------------------
 while True:
     screen.erase()
-    # gameOver()
-    drawGameField()
-    drawFood(foodY,foodX)
-    (snakeX, snakeY, direction) = moveTheSnake(snakeX,snakeY,direction)
-    drawSnake(snakeY,snakeX)
 
-    if amIDeadYet(snakeX,snakeY,maxCols,maxRows): death()
+    if stage == "Game":
+        drawGameField()
+        drawFood(foodY,foodX)
+        (snakeX, snakeY, direction) = moveTheSnake(snakeX,snakeY,direction)
+        drawSnake(snakeY,snakeX)
+
+        if amIDeadYet(snakeX,snakeY,maxCols,maxRows):
+            stage = "GameOver"
+
+    elif stage =="GameOver":
+        gameOver()
+        if event == ord(" "):
+            stage = "Game"
+            snakeX = [20,19,18,17]
+            snakeY = [20,20,20,20]
+            direction = "right"
+            screen.timeout(1)
 
     event = screen.getch()
+
     if event == ord("q"): break
     elif event == curses.KEY_UP and direction != "down":
         direction = "up"
@@ -169,6 +181,7 @@ while True:
         direction = "left"
     elif event == curses.KEY_RIGHT and direction != "left":
         direction = "right"
+
 
 curses.endwin()
 #---------------------Main loop ends-------------------------
