@@ -3,116 +3,128 @@ import time
 import random
 
 
-def zeroStage(snakeX=[], snakeY=[], direction=""):
+def zero_stage(snake_x=[], snake_y=[], direction=""):
     """ Starting stage of the snake """
-    snakeX = [20, 19, 18, 17, 16, 15]
-    snakeY = [20, 20, 20, 20, 20, 20]
+    snake_x = [20, 19, 18, 17]
+    snake_y = [20, 20, 20, 20]
     direction = "right"
-    return (snakeX, snakeY, direction)
+    return (snake_x, snake_y, direction)
 
 
-def amIDeadYet(snakeX, snakeY, maxCols, maxRows):
+def am_i_dead_yet(snake_x, snake_y, max_cols, max_rows):
     """ Checks if the death conditions are true """
-    for i in range(len(snakeX) - 1):
-        if snakeX[0] == snakeX[i + 1] and snakeY[0] == snakeY[i + 1]:
+    for i in range(len(snake_x) - 1):
+        if snake_x[0] == snake_x[i + 1] and snake_y[0] == snake_y[i + 1]:
             return True
 
     return False
 
 
-def moveTheSnake(snakeX, snakeY, direction):
+def move_the_snake(snake_x, snake_y, direction, food_type):
     """ Calculates and returns the next X and Y position for each snake part"""
-    global foodY
-    global foodX
+    global food_y
+    global food_x
+    global score
 
-    tempX = snakeX[0]
-    tempY = snakeY[0]
-    snakeX = shiftRight(snakeX)
-    snakeY = shiftRight(snakeY)
+    temp_x = snake_x[0]
+    temp_y = snake_y[0]
+    snake_x = shift_right(snake_x)
+    snake_y = shift_right(snake_y)
 
     if direction == "down":
-        snakeY[0] = tempY + 1
-        snakeX[0] = tempX
+        snake_y[0] = temp_y + 1
+        snake_x[0] = temp_x
     elif direction == "up":
-        snakeY[0] = tempY - 1
-        snakeX[0] = tempX
+        snake_y[0] = temp_y - 1
+        snake_x[0] = temp_x
     elif direction == "right":
-        snakeX[0] = tempX + 1
-        snakeY[0] = tempY
+        snake_x[0] = temp_x + 1
+        snake_y[0] = temp_y
     elif direction == "left":
-        snakeX[0] = tempX - 1
-        snakeY[0] = tempY
+        snake_x[0] = temp_x - 1
+        snake_y[0] = temp_y
 
-    if snakeY[0] == foodY and snakeX[0] == foodX:
-        foodY = random.randint(2, maxRows - 2)
-        foodX = random.randint(2, maxCols - 2)
-        snakeX.insert(1, tempX)
-        snakeY.insert(1, tempY)
+    if snake_y[0] == food_y and snake_x[0] == food_x:
+        food_y = random.randint(2, max_rows - 3)
+        food_x = random.randint(2, max_cols - 3)
+        snake_x.insert(1, temp_x)
+        snake_y.insert(1, temp_y)
+        if food_type == 5:
+            score += 5
+        else:
+            score += 1
+        food_type = random.randint(1, 5)
 
     # right wall
-    if snakeX[0] == maxCols - 1:
-        snakeX[0] = 1
+    if snake_x[0] == max_cols - 2:
+        snake_x[0] = 1
     # left wall
-    elif snakeX[0] == 1:
-        snakeX[0] = maxCols - 2
+    elif snake_x[0] == 0:
+        snake_x[0] = max_cols - 3
     # upper wall
-    elif snakeY[0] == 1:
-        snakeY[0] = maxRows - 2
+    elif snake_y[0] == 0:
+        snake_y[0] = max_rows - 3
     # bottom wall
-    elif snakeY[0] == maxRows - 1:
-        snakeY[0] = 1
+    elif snake_y[0] == max_rows - 2:
+        snake_y[0] = 1
 
-    for i in range(len(snakeX)):
-        if foodX == snakeX[i] and foodY == snakeY[i]:
-            foodY = random.randint(2, maxRows - 2)
-            foodX = random.randint(2, maxCols - 2)
+    for i in range(len(snake_x)):
+        if food_x == snake_x[i] and food_y == snake_y[i]:
 
-    return snakeX, snakeY, direction
+            food_y = random.randint(2, max_rows - 2)
+            food_x = random.randint(2, max_cols - 2)
+
+    return snake_x, snake_y, direction, food_type
 
 
-def drawGameField():
+def draw_game_field():
     """ Draws the static parts of the game field and the scoreboard"""
-    if (len(snakeX) - 4) // 6 == 0:
-        gameSpeed = 200
-    elif (len(snakeX) - 4) // 6 == 1:
-        gameSpeed = 150
-    elif (len(snakeX) - 4) // 6 == 2:
-        gameSpeed = 100
-    elif (len(snakeX) - 4) // 6 >= 3:
-        gameSpeed = 50
+    if score // 12 == 0:
+        game_speed = 200
+    elif score // 12 == 1:
+        game_speed = 150
+    elif score // 12 == 2:
+        game_speed = 100
+    elif score // 12 >= 3:
+        game_speed = 75
 
-    screen.timeout(gameSpeed)
-    screen.border(0)
-    box1 = curses.newwin(2, 2, 0, 0)
+    screen.timeout(game_speed)
+    # screen.border(0)
+    # box1 = curses.newwin(2, 2, 0, 0)
     # Automatically refreshes the box if window size is changed
-    box1.immedok(True)
-    screen.addstr(1, 1, "SCORE:" + str(len(snakeX) - 4))
-    pressq = "Presss 'q' to quit"
-    screen.addstr(maxRows - 2, maxCols - 2 - len(pressq), pressq)
+    # box1.immedok(True)
+    counter = 0
+    with open('map.txt') as f:
+        for line in f:
+            screen.addstr(counter, 0, line)
+            counter += 1
+    screen.addstr(1, 1, "SCORE:" + str(score))
+    pressq = "Press 'q' to quit"
+    screen.addstr(max_rows - 2, max_cols - 2 - len(pressq), pressq)
     title = "SnakeUltimate"
-    screen.addstr(0, int((maxCols - len(title)) / 2), title)
+    screen.addstr(0, int((max_cols - len(title)) / 2), title)
 
 
-def drawSnake(snakeY, snakeX):
+def draw_snake(snake_y, snake_x):
     """ Draws all segments of the snake at given coordinates and in color"""
-    for i in range(len(snakeX)):
+    for i in range(len(snake_x)):
         if i == 0:
-            screen.addstr(snakeY[i], snakeX[i], "█", curses.color_pair(1))
+            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(1))
         else:
-            screen.addstr(snakeY[i], snakeX[i], "█", curses.color_pair(2))
+            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(2))
 
 
-def drawFood(y, x):
+def draw_food(y, x, draw_this, color):
     """ Draws the food at given coordinates"""
-    screen.addstr(y, x, "⦁")
+    screen.addstr(y, x, draw_this, color)
 
 
-def shiftRight(l):
+def shift_right(l):
     """ Takes a list as an input and shifts every element to the right"""
     return l[-1:] + l[:-1]
 
 
-def gameOver(score):
+def game_over(score):
     """ Game over text at the end """
     user_name = ""
     pressed_enter = False
@@ -192,6 +204,10 @@ def read_high_score(user_name):
         counter += 1
 
     screen.addstr(5 + counter + 2, 24, "Press 'SPACE' to try again!")
+    screen.addstr(5 + counter + 3, 24, "Press 'q' to quit!")
+    if screen.getch() == ord("q"):
+        curses.endwin()
+        quit()
     f.close()
 
 
@@ -199,27 +215,32 @@ def read_high_score(user_name):
 
 # Curses module initialisation
 screen = curses.initscr()
-maxRows, maxCols = screen.getmaxyx()
+max_rows, max_cols = 24, 80
 curses.noecho()
 curses.curs_set(0)
 screen.keypad(1)
 screen.nodelay(1)
 curses.start_color()
 stage = "Game"
+score = 0
 
 # Used color pairs initialisation
 curses.init_pair(1, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
+curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
+curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
 
 # Starting position of the food
-foodY = random.randint(2, maxRows - 2)
-foodX = random.randint(2, maxCols - 2)
+food_y = random.randint(2, max_rows - 3)
+food_x = random.randint(2, max_cols - 3)
+food_type = 5
 
 # X and Y coordinates of the starting position and direction of the snake
-snakeX, snakeY, direction = zeroStage()
+snake_x, snake_y, direction = zero_stage()
 
 # Speed of the game
-gameSpeed = 0.1  # the lower the value, the faster the game, but must be > 0
+game_speed = 0.1  # the lower the value, the faster the game, but must be > 0
 # --------------------Initialisation ends---------------------
 
 
@@ -228,19 +249,23 @@ while True:
     screen.erase()
 
     if stage == "Game":
-        drawGameField()
-        drawFood(foodY, foodX)
-        (snakeX, snakeY, direction) = moveTheSnake(snakeX, snakeY, direction)
-        drawSnake(snakeY, snakeX)
-        # stage = "GameOver" # EZT SZEGGYED KIIIIIIII!!!!!
+        draw_game_field()
 
-        if amIDeadYet(snakeX, snakeY, maxCols, maxRows):
-            stage = "GameOver"
+        if food_type == 5:
+            draw_food(food_y, food_x, "✯", curses.color_pair(3))
+        else:
+            draw_food(food_y, food_x, "⦁", curses.color_pair(5))
 
-    elif stage == "GameOver":
-        gameOver(len(snakeX)-4)
+        (snake_x, snake_y, direction, food_type) = move_the_snake(snake_x, snake_y, direction, food_type)
+        draw_snake(snake_y, snake_x)
+
+        if am_i_dead_yet(snake_x, snake_y, max_cols, max_rows):
+            stage = "game_over"
+
+    elif stage == "game_over":
+        game_over(score)
         stage = "Game"
-        snakeX, snakeY, direction = zeroStage(snakeX, snakeY, direction)
+        snake_x, snake_y, direction = zero_stage(snake_x, snake_y, direction)
         screen.timeout(1)
 
     event = screen.getch()
