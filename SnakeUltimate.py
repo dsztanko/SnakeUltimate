@@ -201,15 +201,19 @@ def read_high_score(user_name):
     f.close()
 
     screen.addstr(2, 24, "HIGHSCORE")
-    counter = 0
-    for row in scores_list:
-        screen.addstr(5 + counter, 28, str(counter + 1) + ".: " + names[counter] + " " + scores[counter])
-        if names[counter] == user_name:
-            screen.addstr(5 + counter, 28, str(counter + 1) + ".: " + names[counter] + " " + scores[counter], curses.color_pair(2))
-        counter += 1
 
-    screen.addstr(5 + counter + 2, 24, "Press 'SPACE' to try again!")
-    screen.addstr(5 + counter + 3, 24, "Press 'q' to quit!")
+    for i in range(10):
+        if i >= len(names):
+            break
+        screen.addstr(5 + i, 28, str(i + 1) +
+                      ".: " + names[i] + " " + scores[i])
+        if names[i] == user_name:
+            screen.addstr(5 + i, 28, str(i + 1) + ".: " +
+                          names[i] + " " +
+                          scores[i], curses.color_pair(2))
+
+    screen.addstr(22, 24, "Press 'SPACE' to try again!")
+    screen.addstr(23, 24, "Press 'q' to quit!")
     if screen.getch() == ord("q"):
         curses.endwin()
         quit()
