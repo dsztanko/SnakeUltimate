@@ -20,7 +20,7 @@ def am_i_dead_yet(snake_x, snake_y, max_cols, max_rows):
     return False
 
 
-def move_the_snake(snake_x, snake_y, direction, food_type):
+def move_the_snake(snake_x, snake_y, direction, food_type, head_color, body_color):
     """ Calculates and returns the next X and Y position for each snake part"""
     global food_y
     global food_x
@@ -49,6 +49,11 @@ def move_the_snake(snake_x, snake_y, direction, food_type):
         food_x = random.randint(2, max_cols - 3)
         snake_x.insert(1, temp_x)
         snake_y.insert(1, temp_y)
+        head_color = random.randint(1, 5)
+        if head_color == 5:
+            body_color = 1
+        else:
+            body_color = head_color + 1
         if food_type == 5:
             score += 5
         else:
@@ -74,7 +79,7 @@ def move_the_snake(snake_x, snake_y, direction, food_type):
             food_y = random.randint(2, max_rows - 2)
             food_x = random.randint(2, max_cols - 2)
 
-    return snake_x, snake_y, direction, food_type
+    return snake_x, snake_y, direction, food_type, head_color, body_color
 
 
 def draw_game_field():
@@ -105,13 +110,13 @@ def draw_game_field():
     screen.addstr(0, int((max_cols - len(title)) / 2), title)
 
 
-def draw_snake(snake_y, snake_x):
+def draw_snake(snake_y, snake_x, head_color, body_color):
     """ Draws all segments of the snake at given coordinates and in color"""
     for i in range(len(snake_x)):
         if i == 0:
-            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(1))
+            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(head_color))
         else:
-            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(2))
+            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(body_color))
 
 
 def draw_food(y, x, draw_this, color):
@@ -230,6 +235,9 @@ curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
 curses.init_pair(3, curses.COLOR_RED, curses.COLOR_BLACK)
 curses.init_pair(4, curses.COLOR_BLUE, curses.COLOR_BLACK)
 curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLACK)
+head_color = 2
+body_color = 3
+
 
 # Starting position of the food
 food_y = random.randint(2, max_rows - 3)
@@ -256,8 +264,8 @@ while True:
         else:
             draw_food(food_y, food_x, "⦁", curses.color_pair(5))
 
-        (snake_x, snake_y, direction, food_type) = move_the_snake(snake_x, snake_y, direction, food_type)
-        draw_snake(snake_y, snake_x)
+        (snake_x, snake_y, direction, food_type, head_color, body_color) = move_the_snake(snake_x, snake_y, direction, food_type, head_color, body_color)
+        draw_snake(snake_y, snake_x, head_color, body_color)
 
         if am_i_dead_yet(snake_x, snake_y, max_cols, max_rows):
             stage = "game_over"
