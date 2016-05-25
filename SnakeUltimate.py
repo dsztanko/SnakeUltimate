@@ -5,8 +5,8 @@ import random
 
 def zeroStage(snakeX=[], snakeY=[], direction=""):
     """ Starting stage of the snake """
-    snakeX = [20, 19, 18, 17]
-    snakeY = [20, 20, 20, 20]
+    snakeX = [20, 19, 18, 17, 16, 15]
+    snakeY = [20, 20, 20, 20, 20, 20]
     direction = "right"
     return (snakeX, snakeY, direction)
 
@@ -89,7 +89,7 @@ def drawGameField():
     screen.addstr(1, 1, "SCORE:" + str(len(snakeX) - 4))
     pressq = "Presss 'q' to quit"
     screen.addstr(maxRows - 2, maxCols - 2 - len(pressq), pressq)
-    title = "The Ultimate Snake"
+    title = "SnakeUltimate"
     screen.addstr(0, int((maxCols - len(title)) / 2), title)
 
 
@@ -112,15 +112,88 @@ def shiftRight(l):
     return l[-1:] + l[:-1]
 
 
-def gameOver():
+def gameOver(score):
     """ Game over text at the end """
-    counter = 1
-    with open('gameOver.txt') as f:
-        for line in f:
-            screen.addstr(counter, 17, line)
-            counter += 1
+    user_name = ""
+    pressed_enter = False
+    while True:
+        screen.addstr(15, 28, "You've reached {0} score.".format(score))
+        screen.addstr(17, 10, "Enter your name to become a member of the SnakeUltimate family: ")
+        counter = 1
+        with open('gameOver.txt') as f:
+            for line in f:
+                screen.addstr(counter, 18, line)
+                counter += 1
+        screen.nodelay(0)
+        letter = str(chr(int(screen.getch())))
+        if pressed_enter:
+            read_high_score(user_name)
+            if screen.getch() == ord(" "):
+                break
+        else:
+            if letter != "ć":
+                user_name = user_name + letter
+            else:
+                if len(user_name) > 0:
+                    user_name = user_name[:-1]
 
-    screen.addstr(15, 28, "Press 'SPACE' to try again.")
+            if len(user_name) >= 15:
+                user_name = user_name[:14]
+            if len(user_name) > 1:
+                if user_name[-1] == "\n":
+                    user_name = user_name[:-1]
+                    write_high_score(user_name, score)
+                    pressed_enter = True
+            screen.erase()
+            screen.addstr(19, 28, user_name)
+
+
+def sorting_method(list1, list2):
+    """ Orders list1 and list2 based on values in list1 """
+    new_list1 = []
+    new_list2 = []
+    for i in range(len(list1)):
+        order = list1.index(max(list1))
+        new_list1.append(list1[order])
+        new_list2.append(list2[order])
+        list1.remove(list1[order])
+        list2.remove(list2[order])
+
+    return new_list1, new_list2
+
+
+def write_high_score(user_name, score):
+    """ Writes the user name and the highscore into the highscore.txt file """
+    f = open("highscore.txt", "a")
+    f.write(user_name + ", " + str(score) + "\n")
+    f.close()
+
+
+def read_high_score(user_name):
+    """ Reads in the highscore table from the highscore.txt file """
+    f = open("highscore.txt")
+    screen.erase()
+    scores_list = f.readlines()
+    names = []
+    scores = []
+    for item in scores_list:
+        (x, y) = item.split(", ")
+        names.append(x.replace("\n", ""))
+        scores.append(y.replace("\n", ""))
+    scores, names = sorting_method(scores, names)
+    f.close()
+
+    screen.addstr(2, 24, "HIGHSCORE")
+    counter = 0
+    for row in scores_list:
+        screen.addstr(5 + counter, 28, str(counter + 1) + ".: " + names[counter] + " " + scores[counter])
+        if names[counter] == user_name:
+            screen.addstr(5 + counter, 28, str(counter + 1) + ".: " + names[counter] + " " + scores[counter], curses.color_pair(2))
+        counter += 1
+
+    screen.addstr(5 + counter + 2, 24, "Press 'SPACE' to try again!")
+    f.close()
+
 
 # -------------------Initialisation starts--------------------
 
@@ -159,16 +232,16 @@ while True:
         drawFood(foodY, foodX)
         (snakeX, snakeY, direction) = moveTheSnake(snakeX, snakeY, direction)
         drawSnake(snakeY, snakeX)
+        # stage = "GameOver" # EZT SZEGGYED KIIIIIIII!!!!!
 
         if amIDeadYet(snakeX, snakeY, maxCols, maxRows):
             stage = "GameOver"
 
     elif stage == "GameOver":
-        gameOver()
-        if event == ord(" "):
-            stage = "Game"
-            snakeX, snakeY, direction = zeroStage(snakeX, snakeY, direction)
-            screen.timeout(1)
+        gameOver(len(snakeX)-4)
+        stage = "Game"
+        snakeX, snakeY, direction = zeroStage(snakeX, snakeY, direction)
+        screen.timeout(1)
 
     event = screen.getch()
 
