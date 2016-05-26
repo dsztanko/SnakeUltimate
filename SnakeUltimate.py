@@ -41,12 +41,20 @@ def draw_snake(snake_y, snake_x, head_color, body_color):
     """ Draws all segments of the snake at given coordinates and in color"""
     for i in range(len(snake_x)):
         if i == 0:
-            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(head_color))
+            screen.addstr(snake_y[i], snake_x[i], "█",
+                          curses.color_pair(head_color))
         else:
-            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(body_color))
+            screen.addstr(snake_y[i], snake_x[i], "█",
+                          curses.color_pair(body_color))
 
 
-def move_the_snake(snake_x, snake_y, direction, food_type, head_color, body_color):
+def move_the_snake(
+        snake_x,
+        snake_y,
+        direction,
+        food_type,
+        head_color,
+        body_color):
     """ Calculates and returns the next X and Y position for each snake part"""
     global food_y
     global food_x
@@ -123,7 +131,10 @@ def game_over(score):
     pressed_enter = False
     while True:
         screen.addstr(15, 28, "You've reached {0} score.".format(score))
-        screen.addstr(17, 10, "Enter your name to become a member of the SnakeUltimate family: ")
+        screen.addstr(
+            17,
+            10,
+            "Enter your name to become a member of the SnakeUltimate family: ")
         counter = 1
         with open('gameOver.txt') as f:
             for line in f:
@@ -275,7 +286,8 @@ while True:
         else:
             draw_food(food_y, food_x, "⦁", curses.color_pair(5))
 
-        (snake_x, snake_y, direction, food_type, head_color, body_color) = move_the_snake(snake_x, snake_y, direction, food_type, head_color, body_color)
+        (snake_x, snake_y, direction, food_type, head_color, body_color) = move_the_snake(
+            snake_x, snake_y, direction, food_type, head_color, body_color)
         draw_snake(snake_y, snake_x, head_color, body_color)
 
         if am_i_dead_yet(snake_x, snake_y, max_cols, max_rows):
