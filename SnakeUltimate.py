@@ -2,6 +2,8 @@ import curses
 import time
 import random
 
+# -------------------Main, basic functions-------------------------------------
+
 
 def zero_stage(snake_x=[], snake_y=[], direction=""):
     """ Starting stage of the snake """
@@ -11,13 +13,37 @@ def zero_stage(snake_x=[], snake_y=[], direction=""):
     return (snake_x, snake_y, direction)
 
 
-def am_i_dead_yet(snake_x, snake_y, max_cols, max_rows):
-    """ Checks if the death conditions are true """
-    for i in range(len(snake_x) - 1):
-        if snake_x[0] == snake_x[i + 1] and snake_y[0] == snake_y[i + 1]:
-            return True
+def draw_game_field():
+    """ Draws the static parts of the game field and the scoreboard"""
+    if score // 12 == 0:
+        game_speed = 200
+    elif score // 12 == 1:
+        game_speed = 150
+    elif score // 12 == 2:
+        game_speed = 100
+    elif score // 12 >= 3:
+        game_speed = 75
 
-    return False
+    screen.timeout(game_speed)
+    counter = 0
+    with open('map.txt') as f:
+        for line in f:
+            screen.addstr(counter, 0, line)
+            counter += 1
+    screen.addstr(1, 1, "SCORE:" + str(score))
+    pressq = "Press 'q' to quit"
+    screen.addstr(max_rows - 2, max_cols - 2 - len(pressq), pressq)
+    title = "SnakeUltimate"
+    screen.addstr(0, int((max_cols - len(title)) / 2), title)
+
+
+def draw_snake(snake_y, snake_x, head_color, body_color):
+    """ Draws all segments of the snake at given coordinates and in color"""
+    for i in range(len(snake_x)):
+        if i == 0:
+            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(head_color))
+        else:
+            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(body_color))
 
 
 def move_the_snake(snake_x, snake_y, direction, food_type, head_color, body_color):
@@ -45,8 +71,8 @@ def move_the_snake(snake_x, snake_y, direction, food_type, head_color, body_colo
         snake_y[0] = temp_y
 
     if snake_y[0] == food_y and snake_x[0] == food_x:
-        food_y = random.randint(2, max_rows - 3)
-        food_x = random.randint(2, max_cols - 3)
+        food_y = random.randint(2, max_rows - 4)
+        food_x = random.randint(2, max_cols - 4)
         snake_x.insert(1, temp_x)
         snake_y.insert(1, temp_y)
         head_color = random.randint(1, 5)
@@ -82,51 +108,13 @@ def move_the_snake(snake_x, snake_y, direction, food_type, head_color, body_colo
     return snake_x, snake_y, direction, food_type, head_color, body_color
 
 
-def draw_game_field():
-    """ Draws the static parts of the game field and the scoreboard"""
-    if score // 12 == 0:
-        game_speed = 200
-    elif score // 12 == 1:
-        game_speed = 150
-    elif score // 12 == 2:
-        game_speed = 100
-    elif score // 12 >= 3:
-        game_speed = 75
+def am_i_dead_yet(snake_x, snake_y, max_cols, max_rows):
+    """ Checks if the death conditions are true """
+    for i in range(len(snake_x) - 1):
+        if snake_x[0] == snake_x[i + 1] and snake_y[0] == snake_y[i + 1]:
+            return True
 
-    screen.timeout(game_speed)
-    # screen.border(0)
-    # box1 = curses.newwin(2, 2, 0, 0)
-    # Automatically refreshes the box if window size is changed
-    # box1.immedok(True)
-    counter = 0
-    with open('map.txt') as f:
-        for line in f:
-            screen.addstr(counter, 0, line)
-            counter += 1
-    screen.addstr(1, 1, "SCORE:" + str(score))
-    pressq = "Press 'q' to quit"
-    screen.addstr(max_rows - 2, max_cols - 2 - len(pressq), pressq)
-    title = "SnakeUltimate"
-    screen.addstr(0, int((max_cols - len(title)) / 2), title)
-
-
-def draw_snake(snake_y, snake_x, head_color, body_color):
-    """ Draws all segments of the snake at given coordinates and in color"""
-    for i in range(len(snake_x)):
-        if i == 0:
-            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(head_color))
-        else:
-            screen.addstr(snake_y[i], snake_x[i], "█", curses.color_pair(body_color))
-
-
-def draw_food(y, x, draw_this, color):
-    """ Draws the food at given coordinates"""
-    screen.addstr(y, x, draw_this, color)
-
-
-def shift_right(l):
-    """ Takes a list as an input and shifts every element to the right"""
-    return l[-1:] + l[:-1]
+    return False
 
 
 def game_over(score):
@@ -141,15 +129,17 @@ def game_over(score):
             for line in f:
                 screen.addstr(counter, 18, line)
                 counter += 1
+        if pressed_enter:
+            pressed_key = read_high_score(user_name)
+            if pressed_key == ord(" "):
+                break
+
         screen.nodelay(0)
         letter = str(chr(int(screen.getch())))
-        if pressed_enter:
-            read_high_score(user_name)
-            if screen.getch() == ord(" "):
-                break
-        else:
+
+        if not pressed_enter:
             if letter != "ć":
-                user_name = user_name + letter
+                user_name += letter
             else:
                 if len(user_name) > 0:
                     user_name = user_name[:-1]
@@ -165,10 +155,24 @@ def game_over(score):
             screen.addstr(19, 28, user_name)
 
 
+# -------------------Miscellaneous functions-----------------------------------
+
+
+def draw_food(y, x, draw_this, color):
+    """ Draws the food at given coordinates"""
+    screen.addstr(y, x, draw_this, color)
+
+
+def shift_right(l):
+    """ Takes a list as an input and shifts every element to the right"""
+    return l[-1:] + l[:-1]
+
+
 def sorting_method(list1, list2):
     """ Orders list1 and list2 based on values in list1 """
     new_list1 = []
     new_list2 = []
+    list1 = list(map(int, list1))
     for i in range(len(list1)):
         order = list1.index(max(list1))
         new_list1.append(list1[order])
@@ -206,21 +210,24 @@ def read_high_score(user_name):
         if i >= len(names):
             break
         screen.addstr(5 + i, 28, str(i + 1) +
-                      ".: " + names[i] + " " + scores[i])
+                      ".: " + names[i] + " " + str(scores[i]))
         if names[i] == user_name:
             screen.addstr(5 + i, 28, str(i + 1) + ".: " +
                           names[i] + " " +
-                          scores[i], curses.color_pair(2))
+                          str(scores[i]), curses.color_pair(2))
 
-    screen.addstr(22, 24, "Press 'SPACE' to try again!")
-    screen.addstr(23, 24, "Press 'q' to quit!")
-    if screen.getch() == ord("q"):
+    screen.addstr(17, 24, "Press 'SPACE' to try again!")
+    screen.addstr(18, 24, "Press 'q' to quit!")
+
+    event = screen.getch()
+
+    if event == ord("q"):
         curses.endwin()
         quit()
-    f.close()
+    else:
+        return event
 
-
-# -------------------Initialisation starts--------------------
+# -------------------Initialisation starts-------------------------------------
 
 # Curses module initialisation
 screen = curses.initscr()
@@ -276,6 +283,7 @@ while True:
 
     elif stage == "game_over":
         game_over(score)
+        score = 0
         stage = "Game"
         snake_x, snake_y, direction = zero_stage(snake_x, snake_y, direction)
         screen.timeout(1)
